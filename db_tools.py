@@ -87,6 +87,7 @@ def getAllPatientsToText(dbCursor):
     columnNames = [desc[0] for desc in dbCursor.description]
     rows = dbCursor.fetchall()
     df = pd.DataFrame(rows, columns=columnNames)
+    df = df.drop_duplicates(subset=['story_id', 'contact_id', 'status'])
     return df
 
 def getStatusBeginTime(ageId, dbCursor):

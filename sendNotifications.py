@@ -143,6 +143,7 @@ def sendEmail(filledTemplate, patientEmail, patientFirstName, salespersonEmail=N
 
 def main():
     print("=== Starting Insurance Reminder Script ===")
+    print("Timestamp:", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     dbConnection, dbCursor = createConnection()
     
     print("Fetching patients from database...")
