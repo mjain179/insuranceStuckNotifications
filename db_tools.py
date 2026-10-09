@@ -10,6 +10,7 @@ def getAllPatientsToText(dbCursor):
             s.status,
             i.product,
             c.first_name AS patient_first_name,
+             c.last_name AS patient_last_name,
             c.phone_number AS patient_phone_number,
             c.email AS patient_email,
             c.subtype AS patient_subtype,

@@ -28,6 +28,17 @@ def get_mail_credentials():
         data = json.load(json_file)
         return data['email'], data['password']
 
+def formatPatientName(patient):
+    parts = []
+    for key in ('patient_first_name', 'patient_last_name'):
+        value = patient.get(key)
+        if value is None or pd.isna(value):
+            continue
+        value = str(value).strip().replace('\n', ' ')
+        if value and value != '#NA':
+            parts.append(value)
+    return ' '.join(parts) or 'Patient'
+
 def convertToUtc(ts):
     if ts is None or (isinstance(ts, float) and pd.isna(ts)):
         return None
@@ -102,7 +113,7 @@ def sendMessage(client, filledTemplate, phoneNumber):
     except Exception as e:
         print(f"Failed to send SMS: {e}")
 
-def sendEmail(filledTemplate, patientEmail, patientFirstName, salespersonEmail=None):
+def sendEmail(filledTemplate, patientEmail, patientName, insuranceId, salespersonEmail=None):
     try:
         # Get mail credentials
         email_user, email_password = get_mail_credentials()
@@ -111,7 +122,7 @@ def sendEmail(filledTemplate, patientEmail, patientFirstName, salespersonEmail=N
         msg = MIMEMultipart()
         msg['From'] = 'service@motusnova.com'
         msg['To'] = patientEmail
-        msg['Subject'] = 'Insurance Claim Update from Motus Nova'
+        msg['Subject'] = f'Insurance Claim Update from Motus Nova for {patientName} (#{insuranceId})'
         
         # Add CC if salesperson email exists
         if salespersonEmail and salespersonEmail != '':
@@ -217,7 +228,8 @@ def main():
             else:
                 print(f"Sending email to: {patient['patient_email']} (no CC)")
             
-            sendEmail(filledTemplate, patient['patient_email'], patient['patient_first_name'], salesperson_email)
+            patientName = formatPatientName(patient)
+            sendEmail(filledTemplate, patient['patient_email'], patientName, patient['story_id'], salesperson_email)
             emailsSent += 1
             print(f"✓ Email sent successfully")
         else:
